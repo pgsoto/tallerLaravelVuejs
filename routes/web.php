@@ -14,3 +14,17 @@
 Route::get('/', function () {
     return view('welcome');
 });
+/* Route::get('/rutaURL','CONTROLADOR@METODO'); */
+Route::get('/posts', 'PostController@index');
+Route::get('{slug}/post', 'PostController@postChannel')
+    ->name('postChannel');
+Route::group(['middleware' => 'auth'], function () {
+    Route::get('/posts/create', 'PostController@create')
+        ->name('post.create');
+    Route::post('/posts', 'PostController@store');
+});
+
+
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');
