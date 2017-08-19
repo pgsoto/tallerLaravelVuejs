@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Channel;
 use App\Post;
-use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
+
 
 class PostController extends Controller
 {
@@ -20,8 +20,9 @@ class PostController extends Controller
         //$posts = Post::all();
         $channels = Channel::all();
         $posts = Post::with(['channel', 'user'])
-            ->orderBy('create_at', 'DESC')
+            ->orderBy('created_at', 'DESC')
             ->get();
+
         return view('post.index', compact('posts', 'channels'));
     }
 
@@ -34,10 +35,10 @@ class PostController extends Controller
 
             $posts = Post::where('channel_id', $channel->id)
                 ->with(['channel', 'user'])
+                ->orderBy('created_at', 'DESC')
                 ->get();
 
             return view('post.index', compact('posts', 'channels'));
-
         } catch (ModelNotFoundException $ex) {
             abort(404);
         }
@@ -51,6 +52,7 @@ class PostController extends Controller
     public function create()
     {
         $channels = Channel::all();
+
         return view('post.create', compact('channels'));
     }
 
@@ -68,14 +70,9 @@ class PostController extends Controller
             'channel_id' => 'required'
         ]);
 
-        $post = new Post();
-        $post->title = $request->get('title');
-        $post->body = $request->get('body');
-        $post->channel_id = $request->get('channel_id');
-        $post->user_id = Auth::user()->id;
-        $post->save();
+        Post::create($request->all());
 
-        return response()->redirectTo('/post');
+        return response()->redirectTo('/posts');
     }
 
     /**
